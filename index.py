@@ -51,6 +51,8 @@ def pp():
         texto = request.form.get('texto_nota')
         date = request.form.get('date')
 
+        print(type(date))
+
         fecha = dt.datetime.strptime(date, "%Y-%m-%d")
         fecha = fecha.date()
         
