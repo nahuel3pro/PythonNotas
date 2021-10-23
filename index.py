@@ -55,6 +55,7 @@ def pp():
         fecha = fecha.date()
         
         print(fecha)
+        print(type(fecha))
 
         nueva_nota = Agenda( texto = texto, fecha = fecha, user_id = current_user.id)
         db.session.add(nueva_nota)
@@ -131,6 +132,38 @@ def delete_note():
             db.session.commit()
 
     return jsonify({})
+
+@app.route('/editar/<string:id>', methods=['POST', 'GET'])
+def editar_note(id):
+    
+    
+    if request.method == 'POST':
+        text = Agenda.query.get(id)
+
+        new_date = request.form.get('date')
+        texto_nota = request.form.get('texto_nota')
+
+        # Formateando la fecha para que la acepte
+        fecha_nueva = dt.datetime.strptime(new_date, "%Y-%m-%d")
+        fecha_nueva = fecha_nueva.date()
+
+        print(fecha_nueva)
+        print(type(fecha_nueva))
+        
+
+        # nueva_data = text(fecha = fecha_nueva, texto = texto_nota, user_id = current_user.id)
+        # db.session.add(nueva_data)
+        text.texto = texto_nota
+        text.fecha = fecha_nueva
+        db.session.commit()
+
+        return redirect(url_for('pp'))
+    else:
+        texto = Agenda.query.filter_by(id = id).first()
+        
+        print(texto.texto)
+
+        return render_template('editar.html', user=current_user, texto = texto)
 
 if __name__ == "__main__":
     app.run(debug=True)
