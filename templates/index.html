@@ -1,0 +1,54 @@
+{%extends 'base.html'%}
+
+{%block title%}
+| Home
+{%endblock%}
+
+{%block contenido%}
+
+{%with messages = get_flashed_messages(with_categories = true)%}
+{%if messages:%}
+    {%for category, i in messages:%}
+        {%if category == 'error' :%}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>{{i}}</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        
+        
+        {%elif category == 'tolis' :%}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>{{i}}</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {%endif%}
+
+    {%endfor%}
+{%endif%}
+{%endwith%}
+
+{%if user.is_authenticated%}
+              
+<figure class="text-center mt-3">
+    <blockquote class="blockquote">
+        <h3>Bienvenido, empezá a usar ya la agenda :D</h3>
+    </blockquote>
+    <figcaption class="blockquote-footer">
+        Tu vieja <cite title="Source Title">en tanga.</cite>
+    </figcaption>
+</figure>
+
+{%else%}
+
+
+<figure class="text-center mt-3">
+<blockquote class="blockquote mt-3">
+    <h1>
+        Ingresá flaco o create una cuentra ;)
+    </h1>
+</blockquote>
+</figure>
+
+{%endif%}
+
+{%endblock%}
