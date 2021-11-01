@@ -59,7 +59,13 @@ def pp():
         print(fecha)
         print(type(fecha))
 
-        nueva_nota = Agenda( texto = texto, fecha = fecha, user_id = current_user.id)
+        data = {
+            'texto' : texto,
+            'fecha' : fecha
+        }
+
+        # nueva_nota = Agenda( texto = texto, fecha = fecha, user_id = current_user.id)
+        nueva_nota = Agenda( **data, user_id = current_user.id)
         db.session.add(nueva_nota)
         db.session.commit()
 
