@@ -1,9 +1,11 @@
 from flask import Flask, render_template,url_for,request, flash,redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import defaultload
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from flask_login import login_manager, login_user, login_required, logout_user, current_user
 import datetime as dt
+from datetime import datetime
 import json
 
 app = Flask(__name__)
@@ -16,8 +18,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///bds/{DB_NAME}'
 #   Modelo de base de datos
 class Agenda(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    texto = db.Column(db.String(10000))
-    fecha = db.Column(db.DateTime)
+    texto = db.Column(db.String(10000), nullable = False, default = "Texto")
+    fecha = db.Column(db.DateTime, nullable = False, default = datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('usuario.id'))
 
 class Usuario(db.Model, UserMixin):
@@ -26,6 +28,9 @@ class Usuario(db.Model, UserMixin):
     user = db.Column(db.String(255))
     password = db.Column(db.String(255))
     notes = db.relationship('Agenda')
+
+    def __repr__(self):
+        return f"Usuario('{self.email}' , '{self.user}')"
 
 #   Creando la base de datos
 db.create_all(app = app)
@@ -53,9 +58,13 @@ def pp():
 
         print(type(date))
 
-        fecha = dt.datetime.strptime(date, "%Y-%m-%d")
-        fecha = fecha.date()
-        
+        try:
+            fecha = dt.datetime.strptime(date, "%Y-%m-%d")
+            fecha = fecha.date()
+        except:
+            flash('Flaco no juegues con el html', category = "error")
+            return render_template('home.html', user = current_user)
+            
         print(fecha)
         print(type(fecha))
 
@@ -69,9 +78,10 @@ def pp():
         db.session.add(nueva_nota)
         db.session.commit()
 
+        flash('¡Notita agregada!', category = "tolis")
+        return render_template('home.html', user=current_user)
     else:
         return render_template('home.html', user = current_user)
-    return render_template('home.html', user=current_user)
 
 @app.route('/registrarse', methods = ['POST','GET'])
 def registrarse():
@@ -139,6 +149,7 @@ def delete_note():
             db.session.delete(note)
             db.session.commit()
 
+    flash('¡Notita eliminada!', category = "tolis")
     return jsonify({})
 
 @app.route('/editar/<string:id>', methods=['POST', 'GET'])
@@ -147,14 +158,17 @@ def editar_note(id):
     
     if request.method == 'POST':
         text = Agenda.query.get(id)
-
         new_date = request.form.get('date')
         texto_nota = request.form.get('texto_nota')
 
-        # Formateando la fecha para que la acepte
-        fecha_nueva = dt.datetime.strptime(new_date, "%Y-%m-%d")
-        fecha_nueva = fecha_nueva.date()
+        try:
+            # Formateando la fecha para que la acepte
+            fecha_nueva = dt.datetime.strptime(new_date, "%Y-%m-%d")
+            fecha_nueva = fecha_nueva.date()
+        except:
+            return redirect(url_for("editar_note", id = id))
 
+        
         print(fecha_nueva)
         print(type(fecha_nueva))
         
@@ -165,6 +179,7 @@ def editar_note(id):
         text.fecha = fecha_nueva
         db.session.commit()
 
+        flash('¡Notita editada de manera satisfactoria!', category = 'tolis')
         return redirect(url_for('pp'))
     else:
         texto = Agenda.query.filter_by(id = id).first()
