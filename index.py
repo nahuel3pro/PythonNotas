@@ -62,7 +62,7 @@ def pp():
             fecha = dt.datetime.strptime(date, "%Y-%m-%d")
             fecha = fecha.date()
         except:
-            flash('Flaco no juegues con el html', category = "error")
+            flash('Flaco, no juegues con el html', category = "error")
             return render_template('home.html', user = current_user)
             
         print(fecha)
@@ -79,9 +79,8 @@ def pp():
         db.session.commit()
 
         flash('¡Notita agregada!', category = "tolis")
-        return render_template('home.html', user=current_user)
-    else:
-        return render_template('home.html', user = current_user)
+
+    return render_template('home.html', user = current_user)
 
 @app.route('/registrarse', methods = ['POST','GET'])
 def registrarse():
